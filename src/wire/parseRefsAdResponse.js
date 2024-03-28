@@ -42,6 +42,10 @@ export async function parseRefsAdResponse(stream, { service }) {
   const [firstRef, capabilitiesLine] = splitAndAssert(lineTwo, '\x00', '\\x00')
   capabilitiesLine.split(' ').map(x => capabilities.add(x))
   const [ref, name] = splitAndAssert(firstRef, ' ', ' ')
+  // Handle an empty repo where the server returns capabilities
+  if (name === "capabilities^{}" && ref === "0000000000000000000000000000000000000000") {
+    return { capabilities, refs, symrefs };
+  }
   refs.set(name, ref)
   while (true) {
     const line = await read()
